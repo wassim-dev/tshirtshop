@@ -1,0 +1,10 @@
+.app-bar-container {
+  display: flex;
+  align-items: center;
+}
+.app-bar {
+  background: #fff;
+}
+.header-btn-cart {
+  margin: 0 15px !important;
+}

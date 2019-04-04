@@ -1,0 +1,36 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [],
+  "main": "src/index.js",
+  "proxy": "http://localhost:5000",
+  "dependencies": {
+    "@material-ui/core": "3.9.2",
+    "@material-ui/icons": "3.0.2",
+    "@material-ui/lab": "3.0.0-alpha.30",
+    "@react-firebase/auth": "0.2.9",
+    "firebase": "5.8.5",
+    "lodash": "4.17.11",
+    "react": "16.8.3",
+    "react-dom": "16.8.3",
+    "react-router-dom": "4.3.1",
+    "react-scripts": "2.0.3",
+    "react-stripe-elements": "2.0.3",
+    "reactjs-localstorage": "0.0.7",
+    "universal-cookie": "^3.1.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "name": "tshirtshop",
+  "version": "1.0.0",
+  "description": "tshirtshop",
+  "main": "index.js",
+  "scripts": {
+    "install-backend-dependencies": "cd backend && npm i",
+    "install-frontend-dependencies": "cd frontend && npm i",
+    "install-dependencies": "npm run install-backend-dependencies && npm run install-frontend-dependencies",
+    "backend-server": "cd backend && npm run start",
+    "frontend-server": "cd frontend && npm run start",
+    "build": "cd frontend && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wassim-dev/tshirtshop.git"
+  },
+  "author": "wassim.dev@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wassim-dev/tshirtshop/issues"
+  },
+  "homepage": "https://github.com/wassim-dev/tshirtshop#readme"
+}

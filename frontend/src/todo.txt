@@ -1,0 +1,31 @@
+frontend
+functionner moteur de recherche attrs + ajouter filter prix + design
+ajouter affichage de prix product item
+ajouter "home" menu departement
+design button qte product item
+design button paginations
+ajouter page detail product
+dialog cart titre & text
+table des products dans cart + possiblilite de choi des attributes
+btn save changes -> close
+step confirmation -> design & ajouter recap +tax + shipping 
+step Paiement design + demonde de login 
+finish -> message de success & design
+login activer facebook
+ajouter footer collé a bottom 100vh
+page not found
+responcive design
+ajouter titre de page
+---------
+backend php
+calcule de prix achat
+enregistrement de commande
+ajouter hook stripe
+envoi d'email success
+---------
+finalisation
+ajouter au design demander
+creer backend nodejs
+footer avoncé
+tester tout
+

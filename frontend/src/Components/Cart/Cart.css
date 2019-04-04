@@ -1,0 +1,33 @@
+.cartdialog .product-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.cartrow {
+  width: 100%;
+  padding: 15px;
+  display: flex;
+  align-items: flex-start;
+}
+.flexrow {
+  display: flex;
+  align-items: center;
+}
+.flexcol {
+  display: flex;
+  flex-direction: column;
+}
+
+.cartrow > img {
+  margin-right: 15px;
+}
+.cartrow ul {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0;
+  margin: 3px;
+  list-style: none;
+}
+.rowattrs {
+  zoom: 0.7;
+}

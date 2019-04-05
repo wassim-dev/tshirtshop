@@ -66,7 +66,7 @@ export default class GlobalState extends Component {
     this.api
       .request("post", "/session", { idToken: user.idToken || "" })
       .then(rep => {
-        if (rep.verified) {
+        if (rep && rep.verified) {
           localStorage.setItem("sessionid", rep.sessionid);
           this.setState({ user });
           reactLocalStorage.setObject("user", { user });
@@ -204,6 +204,7 @@ export default class GlobalState extends Component {
         };
         setDataProducts(data);
       };
+
       let timeOut = null;
       const scrollToTop = () => {
         if (

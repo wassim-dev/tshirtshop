@@ -20,9 +20,7 @@ import { IconButton } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 
 export default injectStripe(props => {
-  const { shippings, carts, clearCart, orderSent } = useContext(
-    ShopContext
-  );
+  const { shippings, carts, clearCart, orderSent } = useContext(ShopContext);
   const [activeStep, setActiveStep] = useState(orderSent ? 3 : 0);
   const [disabledNext, setDisabledNext] = useState(false);
 
@@ -43,7 +41,11 @@ export default injectStripe(props => {
       setDisabledNext(false);
       return;
     }
-    let products = carts.map(({ product_id, choice, qte }) => ({ product_id, choice, qte }));
+    let products = carts.map(({ product_id, choice, qte }) => ({
+      product_id,
+      choice,
+      qte
+    }));
     let { token } = await props.stripe.createToken({ name: infos.name });
     if (!token || !token.id) {
       setDisabledNext(false);
@@ -232,28 +234,28 @@ export default injectStripe(props => {
                   shipping => shipping.shipping_region_id === infos.shipping_id
                 ) || { values: [] }
               ).values.length > 0 && (
-                  <TextField
-                    error={infos.shippingValueError}
-                    select
-                    label="Shipping"
-                    helperText="Please select a shipping"
-                    margin="normal"
-                    variant="outlined"
-                    onChange={handleChange("shipping_value_id")}
-                    value={infos.shipping_value_id}
-                  >
-                    {shippings
-                      .find(
-                        shipping =>
-                          shipping.shipping_region_id === infos.shipping_id
-                      )
-                      .values.map(val => (
-                        <MenuItem key={val.shipping_id} value={val.shipping_id}>
-                          {val.shipping_type}
-                        </MenuItem>
-                      ))}
-                  </TextField>
-                )}
+                <TextField
+                  error={infos.shippingValueError}
+                  select
+                  label="Shipping"
+                  helperText="Please select a shipping"
+                  margin="normal"
+                  variant="outlined"
+                  onChange={handleChange("shipping_value_id")}
+                  value={infos.shipping_value_id}
+                >
+                  {shippings
+                    .find(
+                      shipping =>
+                        shipping.shipping_region_id === infos.shipping_id
+                    )
+                    .values.map(val => (
+                      <MenuItem key={val.shipping_id} value={val.shipping_id}>
+                        {val.shipping_type}
+                      </MenuItem>
+                    ))}
+                </TextField>
+              )}
             </div>
           </div>
         ) : null}
@@ -278,10 +280,10 @@ export default injectStripe(props => {
               <label>
                 Card details
                 <CardElement
-                  onBlur={() => { }}
-                  onChange={() => { }}
-                  onFocus={() => { }}
-                  onReady={() => { }}
+                  onBlur={() => {}}
+                  onChange={() => {}}
+                  onFocus={() => {}}
+                  onReady={() => {}}
                   style={{
                     color: "#424770",
                     letterSpacing: "0.025em",

@@ -68,15 +68,13 @@ class userManager {
       };
       next();
     });
-    app.post("/session", (req, res) => {
+    app.post(config.API_BASE_PATH + "/session", (req, res) => {
       if (req.body && req.body.idToken) {
         admin
           .auth()
           .verifyIdToken(req.body.idToken)
-          .then(function (decodedToken) {
+          .then(function(decodedToken) {
             var uid = decodedToken.uid;
-
-
 
             var sessionid = self.generateSessionId(uid);
             return db.getConnection().then(cnx => {
@@ -109,7 +107,7 @@ class userManager {
                 });
             });
           })
-          .catch(function (error) {
+          .catch(function(error) {
             res.send({ verified: false });
           });
       } else {

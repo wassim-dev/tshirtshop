@@ -1,10 +1,9 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import firebase from "@firebase/app";
 import Button from "@material-ui/core/Button";
 import Avatar from "@material-ui/core/Avatar";
 import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import ShopContext from "../../Context/ShopContext";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
@@ -16,46 +15,41 @@ import {
   FirebaseAuthProvider,
   FirebaseAuthConsumer
 } from "@react-firebase/auth";
-
 import GoogleIcon from "./GoogleIcon";
 import FacebookIcon from "./FacebookIcon";
 import { IconButton, Typography } from "@material-ui/core";
 import config from "../../config";
+import { connect } from "react-redux";
 
-
-
-
-export default function FirebaseAuth(props) {
-  const {
-    user,
-    setUser,
-    setStateLoginDialog,
-    openLoginDialogState
-  } = useContext(ShopContext);
+function FirebaseAuth({ store, dispatch }) {
+  const [openLoginDialogState, setStateLoginDialog] = useState(false);
   const [firebaseUser, setFirebaseUser] = useState(null);
+  const { user } = store;
   useEffect(() => {
-    if (firebaseUser) {
+    if (firebaseUser && firebase.auth().currentUser) {
       firebase
         .auth()
         .currentUser.getIdToken(true)
-        .then(function (idToken) {
+        .then(function(idToken) {
           if (firebaseUser) {
             firebaseUser.idToken = idToken;
           }
-          setUser(firebaseUser);
+          dispatch("SET_USER", firebaseUser);
         })
-        .catch(function (error) {
+        .catch(function(error) {
           console.log("idToken error", error);
         });
     }
   }, [firebaseUser]);
   const handleLogout = () => {
-    firebase.auth().signOut();
-    setTimeout(() => {
-      localStorage.removeItem("sessionid");
-      setFirebaseUser(null);
-      setUser(null);
-    }, 10);
+    firebase
+      .auth()
+      .signOut()
+      .then(() => {
+        localStorage.removeItem("sessionid");
+        setFirebaseUser(null);
+        dispatch("LOGOUT");
+      });
   };
   const loginWithFacebook = () => {
     const facebookAuthProvider = new firebase.auth.FacebookAuthProvider();
@@ -89,10 +83,10 @@ export default function FirebaseAuth(props) {
             />
           </div>
         ) : (
-            <IconButton onClick={() => setStateLoginDialog(true)}>
-              <Typography variant="button">Login</Typography>
-            </IconButton>
-          )}
+          <IconButton onClick={() => setStateLoginDialog(true)}>
+            <Typography variant="button">Login</Typography>
+          </IconButton>
+        )}
         <FirebaseAuthConsumer>
           {userInfo => {
             if (userInfo.user) {
@@ -126,3 +120,10 @@ export default function FirebaseAuth(props) {
     </>
   );
 }
+
+export default connect(
+  store => ({ store }),
+  dispatch => ({
+    dispatch: (type, payload = null) => dispatch({ type, payload })
+  })
+)(FirebaseAuth);

@@ -1,17 +1,18 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Products, Search } from "../Components";
 import Paper from "@material-ui/core/Paper";
 import Breadcrumbs from "@material-ui/lab/Breadcrumbs";
 import { NavLink } from "react-router-dom";
-import ShopContext from "../Context/ShopContext";
-export default function Home(props) {
-  const [args, setArgs] = useState({
-    attrs: [],
-    q: ""
-  });
-  const { unselectDepartementAndCategory } = useContext(ShopContext);
-  unselectDepartementAndCategory();
+import { connect } from "react-redux";
+
+export default connect(
+  store => ({ store }),
+  dispatch => ({
+    dispatch: (type, payload = null) => dispatch({ type, payload })
+  })
+)(function Home(props) {
   useEffect(() => {
+    props.dispatch("HOME_PAGE");
     document.title = "Home | TshirtShop";
   }, []);
   return (
@@ -24,9 +25,9 @@ export default function Home(props) {
         </Breadcrumbs>
       </Paper>
       <div className="contentpage">
-        <Search onChange={arg => setArgs(arg)} />
-        <Products attrs={args.attrs} q={args.q} />
+        <Search />
+        <Products />
       </div>
     </div>
   );
-}
+});

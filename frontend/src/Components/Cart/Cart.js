@@ -1,5 +1,4 @@
-import React, { useContext, useState } from "react";
-import ShopContext from "../../Context/ShopContext";
+import React, { useState } from "react";
 import Stepper from "@material-ui/core/Stepper";
 import Step from "@material-ui/core/Step";
 import StepLabel from "@material-ui/core/StepLabel";
@@ -18,12 +17,13 @@ import RemoveIcon from "@material-ui/icons/Remove";
 import AddIcon from "@material-ui/icons/Add";
 import { IconButton } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
+import { connect } from "react-redux";
 
-export default injectStripe(props => {
-  const { shippings, carts, clearCart, orderSent } = useContext(ShopContext);
+const Cart = injectStripe(props => {
+  const { store, dispatch } = props;
+  const { shippings, carts, orderSent } = store;
   const [activeStep, setActiveStep] = useState(orderSent ? 3 : 0);
   const [disabledNext, setDisabledNext] = useState(false);
-
   const [infos, setInfos] = useState({
     shipping_id: "1",
     shippingError: false,
@@ -33,7 +33,6 @@ export default injectStripe(props => {
     nameError: false
   });
   const steps = ["Shoping", "Confirmation", "Paiement", "Finish"];
-
   const submit = async ev => {
     setDisabledNext(true);
     if (!infos.name) {
@@ -59,7 +58,7 @@ export default injectStripe(props => {
     setDisabledNext(false);
     if (rep && rep.success) {
       handleNext(true);
-      clearCart();
+      dispatch("CLEAR_CART");
     }
   };
   const handleBack = () => {
@@ -152,7 +151,7 @@ export default injectStripe(props => {
                     </TableCell>
                     <TableCell>
                       <div>
-                        {row.choice.map((val, i) => (
+                        {(row.choice || []).map((val, i) => (
                           <div key={i}>
                             {val.name} : {val.value}
                           </div>
@@ -165,7 +164,12 @@ export default injectStripe(props => {
                         <Fab
                           size="small"
                           aria-label="Add"
-                          onClick={() => row.setQte(row.qte - 1)}
+                          onClick={() =>
+                            dispatch("SET_QTE", {
+                              choiceId: row.choiceId,
+                              qte: row.qte - 1
+                            })
+                          }
                         >
                           <RemoveIcon />
                         </Fab>
@@ -179,7 +183,12 @@ export default injectStripe(props => {
                         <Fab
                           size="small"
                           aria-label="Remove"
-                          onClick={() => row.setQte(row.qte + 1)}
+                          onClick={() =>
+                            dispatch("SET_QTE", {
+                              choiceId: row.choiceId,
+                              qte: row.qte + 1
+                            })
+                          }
                         >
                           <AddIcon />
                         </Fab>
@@ -331,3 +340,10 @@ export default injectStripe(props => {
     </div>
   );
 });
+
+export default connect(
+  store => ({ store }),
+  dispatch => ({
+    dispatch: (type, payload = null) => dispatch({ type, payload })
+  })
+)(Cart);

@@ -1,32 +1,24 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Products, Search, Loading } from "../Components";
-import ShopContext from "../Context/ShopContext";
 import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 import Breadcrumbs from "@material-ui/lab/Breadcrumbs";
 import { NavLink } from "react-router-dom";
 import NotFound from "./NotFound";
+import { connect } from "react-redux";
 
-export default function Department(props) {
-  const [args, setArgs] = useState({
-    attrs: [],
-    q: ""
-  });
-  const { departments, selectDepartementByURL, isLoading } = useContext(
-    ShopContext
-  );
-
-  selectDepartementByURL(props.match.url);
-  let department = departments.find(({ url }) => url === props.match.url);
+function Department({ store, dispatch, match }) {
   useEffect(() => {
-    if (department) {
-      document.title = department.name + " | TshirtShop";
+    dispatch("SELECT_DEPARTMENT_BY_URL", match.url);
+  }, [match.url, store.isLoading]);
+  useEffect(() => {
+    if (store.activeDepartment) {
+      document.title = store.activeDepartment.name + " | TshirtShop";
     }
-  }, [department]);
+  }, [store.activeDepartment]);
 
-  if (!isLoading && !department) return <NotFound />;
-  if (!department) return <Loading />;
-
+  if (store.notFound) return <NotFound />;
+  if (!store.activeDepartment) return <Loading />;
   return (
     <div>
       <Paper style={{ padding: 10, margin: "10px 0" }}>
@@ -34,18 +26,22 @@ export default function Department(props) {
           <NavLink color="inherit" to="/">
             Home
           </NavLink>
-          <Typography color="textPrimary">{department.name}</Typography>
+          <Typography color="textPrimary">
+            {store.activeDepartment.name}
+          </Typography>
         </Breadcrumbs>
       </Paper>
       <div className="contentpage">
-        <Search department={department} onChange={arg => setArgs(arg)} />
-        <Products
-          key={"dep-" + department.department_id}
-          department={department.department_id}
-          attrs={args.attrs}
-          q={args.q}
-        />
+        <Search />
+        <Products />
       </div>
     </div>
   );
 }
+
+export default connect(
+  store => ({ store }),
+  dispatch => ({
+    dispatch: (type, payload = null) => dispatch({ type, payload })
+  })
+)(Department);

@@ -1,48 +1,43 @@
-import React, { useContext, useEffect } from "react";
-import ShopContext from "../Context/ShopContext";
+import React, { useEffect } from "react";
 import { Redirect } from "react-router-dom";
-import { withStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import { Loading } from "../Components";
 import Grid from "@material-ui/core/Grid";
 import Chip from "@material-ui/core/Chip";
 import BuyProduct from "../Components/Product/BuyProduct";
+import { connect } from "react-redux";
 
-const styles = theme => ({
-  root: {
-    padding: 15,
-    marginTop: 15
-  }
-});
-
-function ProductDetail(props) {
-  const { classes } = props;
-
-  const shop = useContext(ShopContext);
-  const { getProduct } = shop;
-  const product = getProduct(parseInt(props.match.params.id, 0));
+function ProductDetail({ store, dispatch, match }) {
+  const ProductId = parseInt(match.params.id, 0);
+  useEffect(() => {
+    if (ProductId) dispatch("LOAD_PRODUCT_DETAILS", ProductId);
+  }, [ProductId]);
+  useEffect(() => {
+    document.title =
+      ((store.activeProduct && store.activeProduct.name + " | ") || "") +
+      "TshirtShop";
+  }, [store.activeProduct]);
+  if (store.isLoadingProductDetails || !store.activeProduct) return <Loading />;
+  if (store.activeProduct.product_id !== ProductId) return <Loading />;
   const {
     product_id,
     name,
     url,
-    isLoading,
     image,
     attributes,
     price,
     price_before_discount,
     description
-  } = product;
-  useEffect(() => {
-    if (name) {
-      document.title = name + " | TshirtShop";
-    }
-  }, [name]);
-
-  if (isLoading) return <Loading />;
-  if (!isLoading && !product_id) return <Redirect to="/" />;
-  if (!isLoading && props.match.url !== url) return <Redirect to={url} />;
+  } = store.activeProduct;
+  if (!product_id) return <Redirect to="/" />;
+  if (match.url !== url) return <Redirect to={url} />;
   return (
-    <div className={classes.root}>
+    <div
+      style={{
+        padding: 15,
+        marginTop: 15
+      }}
+    >
       <Grid container spacing={16} className="justify-xs-center">
         <Grid item xs={12} md={4}>
           <Grid container direction="row" justify="center" alignItems="center">
@@ -98,12 +93,16 @@ function ProductDetail(props) {
           ))}
           <br />
           <div>
-            <BuyProduct product={product} />
+            <BuyProduct product={store.activeProduct} />
           </div>
         </Grid>
       </Grid>
     </div>
   );
 }
-
-export default withStyles(styles)(ProductDetail);
+export default connect(
+  store => ({ store }),
+  dispatch => ({
+    dispatch: (type, payload = null) => dispatch({ type, payload })
+  })
+)(ProductDetail);

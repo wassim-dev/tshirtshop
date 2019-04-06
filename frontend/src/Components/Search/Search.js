@@ -1,64 +1,21 @@
-import React, { useContext, useState, useEffect } from "react";
-import Categorys from "../Categorys/Categorys";
-import ShopContext from "../../Context/ShopContext";
+import React from "react";
 import Checkbox from "@material-ui/core/Checkbox";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
-import { withStyles } from "@material-ui/core/styles";
-import { InputBase, IconButton } from "@material-ui/core";
+import {
+  InputBase,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText
+} from "@material-ui/core";
+import { NavLink } from "react-router-dom";
+
 import SearchIcon from "@material-ui/icons/Search";
+import { connect } from "react-redux";
 
-const styles = theme => ({
-  root: {
-    ...theme.mixins.gutters(),
-    paddingTop: theme.spacing.unit * 2,
-    paddingBottom: theme.spacing.unit * 2
-  }
-});
-export default withStyles(styles)(function Search(props) {
-  const { attributes } = useContext(ShopContext);
-  const [update, setUpdate] = useState(0);
-  const [q, setQ] = useState("");
-  const [qTime, setQTime] = useState(null);
-  const { classes } = props;
-  const listIds = [];
-  attributes.map(attr => {
-    attr.values.map(val => {
-      if (val.checked) {
-        listIds.push(val.attribute_value_id);
-      }
-      return val;
-    });
-    return attr;
-  });
-
-  useEffect(() => {
-    if (props.onChange)
-      props.onChange({
-        attrs: listIds,
-        q: q
-      });
-  }, [listIds.length]);
-
-  useEffect(() => {
-    if (props.onChange) {
-      if (qTime) {
-        clearTimeout(qTime);
-      }
-      setQTime(
-        setTimeout(
-          () =>
-            props.onChange({
-              attrs: listIds,
-              q: q
-            }),
-          500
-        )
-      );
-    }
-  }, [q]);
-
+function Search({ store, dispatch }) {
   return (
     <div>
       <Paper
@@ -73,38 +30,52 @@ export default withStyles(styles)(function Search(props) {
         <InputBase
           placeholder="Search"
           style={{ flex: 1 }}
-          value={q}
-          onChange={e => setQ(e.target.value)}
+          value={store.searchQuery}
+          onChange={e => dispatch("SET_SEARCH_QUERY", e.target.value)}
         />
         <IconButton
           aria-label="Search"
           onClick={() => {
-            if (props.onChange) {
-              props.onChange({
-                attrs: listIds,
-                q: q
-              });
-            }
+            dispatch("SEARCH");
           }}
         >
           <SearchIcon />
         </IconButton>
       </Paper>
-      <Paper className={classes.root} elevation={1}>
+      <Paper elevation={1} style={{ padding: "3px 15px 7px 15px" }}>
         <div className="search">
-          {props.department && (
+          {store.activeDepartment && (
             <div>
               <Typography variant="h5" component="h3" style={{ marginTop: 15 }}>
                 Categories
               </Typography>
-              <Categorys
-                department={props.department}
-                category={props.category}
-              />
+              <List component="nav">
+                {store.categorys
+                  .filter(
+                    cat =>
+                      cat.department_id === store.activeDepartment.department_id
+                  )
+                  .map((cat, i) => {
+                    return (
+                      <NavLink to={cat.url} key={cat.category_id}>
+                        <ListItem
+                          button
+                          selected={
+                            cat.category_id ===
+                            (store.activeCategory &&
+                              store.activeCategory.category_id)
+                          }
+                        >
+                          <ListItemText primary={cat.name} />
+                        </ListItem>
+                      </NavLink>
+                    );
+                  })}
+              </List>
             </div>
           )}
 
-          {attributes.map(attr => {
+          {store.attributes.map(attr => {
             return (
               <div key={attr.attribute_id}>
                 <Typography
@@ -131,8 +102,10 @@ export default withStyles(styles)(function Search(props) {
                               style={{ padding: 5 }}
                               checked={val.checked}
                               onChange={e => {
-                                val.checked = e.target.checked;
-                                setUpdate(update + 1);
+                                dispatch("CHECK_ATTRIBUTE", {
+                                  id: val.attribute_value_id,
+                                  checked: e.target.checked
+                                });
                               }}
                               value={"id:" + val.attribute_value_id}
                             />
@@ -150,4 +123,10 @@ export default withStyles(styles)(function Search(props) {
       </Paper>
     </div>
   );
-});
+}
+export default connect(
+  store => ({ store }),
+  dispatch => ({
+    dispatch: (type, payload = null) => dispatch({ type, payload })
+  })
+)(Search);

@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "@material-ui/core/Button";
 import Badge from "@material-ui/core/Badge";
 import { withStyles } from "@material-ui/core/styles";
@@ -12,7 +12,6 @@ import Typography from "@material-ui/core/Typography";
 import ShoppingCartIcon from "@material-ui/icons/ShoppingCart";
 import { FirebaseAuth, Cart } from "../../Components";
 import { StripeProvider, Elements } from "react-stripe-elements";
-import ShopContext from "../../Context/ShopContext";
 import { Link } from "react-router-dom";
 import "./Header.css";
 import Drawer from "@material-ui/core/Drawer";
@@ -22,6 +21,8 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import Hidden from "@material-ui/core/Hidden";
 import config from "../../config";
+import { connect } from "react-redux";
+
 const DialogTitle = withStyles(theme => ({
   root: {
     borderBottom: `1px solid ${theme.palette.divider}`,
@@ -59,18 +60,16 @@ const DialogContent = withStyles(theme => ({
   }
 }))(MuiDialogContent);
 
-
-
-export default function Header(props) {
+function Header({ store, dispatch }) {
   const [cartDialogState, setCartDialogState] = useState(false);
   const [sideNavState, setSideNavState] = useState(false);
-  const { departments, carts } = useContext(ShopContext);
-
+  const { departments, carts } = store;
   useEffect(() => {
-    if (carts.length === 0 && cartDialogState) {
+    if (carts.length === 0 && cartDialogState && !store.orderSent) {
       setCartDialogState(false);
     }
   }, [carts.length]);
+
   return (
     <>
       <div>
@@ -89,7 +88,13 @@ export default function Header(props) {
               {departments.map(dep => {
                 return (
                   <Button
-                    color={dep.active ? "secondary" : "default"}
+                    color={
+                      dep.department_id ===
+                      (store.activeDepartment &&
+                        store.activeDepartment.department_id)
+                        ? "secondary"
+                        : "default"
+                    }
                     component={Link}
                     to={dep.url}
                     key={dep.department_id}
@@ -179,3 +184,10 @@ export default function Header(props) {
     </>
   );
 }
+
+export default connect(
+  store => ({ store }),
+  dispatch => ({
+    dispatch: (type, payload = null) => dispatch({ type, payload })
+  })
+)(Header);

@@ -14,7 +14,8 @@ import {
   RadioGroup,
   IconButton
 } from "@material-ui/core";
-
+import { connect } from "react-redux";
+import Loading from "../Loading/Loading";
 const DialogTitle = withStyles(theme => ({
   root: {
     borderBottom: `1px solid ${theme.palette.divider}`,
@@ -60,9 +61,14 @@ const DialogActions = withStyles(theme => ({
   }
 }))(MuiDialogActions);
 
-const FormAttrs = ({ product, onChange }) => {
+const FormAttrs = connect(
+  store => ({ store }),
+  dispatch => ({
+    dispatch: (type, payload = null) => dispatch({ type, payload })
+  })
+)(({ store, onChange }) => {
   const [update, setUpdate] = useState(0);
-  const { isLoading, attributes } = product.loadAttributes();
+  let { attributes } = store.activeProduct;
   useEffect(() => {
     if (onChange) {
       let choiceList = (attributes || [])
@@ -78,8 +84,7 @@ const FormAttrs = ({ product, onChange }) => {
         choiceList
       });
     }
-  }, [update, isLoading]);
-  if (isLoading) return <div>Loading ...</div>;
+  }, [update]);
 
   return (
     <div className="FormAttrs">
@@ -124,14 +129,24 @@ const FormAttrs = ({ product, onChange }) => {
       })}
     </div>
   );
-};
+});
 
-export default ({ product }) => {
+const BuyNow = ({ store, dispatch, product }) => {
   const [buyProductDialogState, setBuyProductDialogState] = useState(false);
   const [selectedAttrs, setSelectedAttrs] = useState({
     choice: false,
     choiceList: []
   });
+
+  const BuyNowClick = () => {
+    if (
+      !store.activeProduct ||
+      product.product_id !== store.activeProduct.product_id
+    ) {
+      dispatch("LOAD_PRODUCT_DETAILS", product.product_id);
+    }
+    setBuyProductDialogState(true);
+  };
 
   return (
     <div>
@@ -141,7 +156,7 @@ export default ({ product }) => {
         variant="extended"
         color="secondary"
         aria-label="BUY NOW"
-        onClick={() => setBuyProductDialogState(true)}
+        onClick={BuyNowClick}
       >
         BUY NOW
       </Fab>
@@ -157,10 +172,11 @@ export default ({ product }) => {
           {product.name}
         </DialogTitle>
         <DialogContent>
-          <FormAttrs
-            product={product}
-            onChange={attrs => setSelectedAttrs(attrs)}
-          />
+          {store.isLoadingProductDetails ? (
+            <Loading />
+          ) : (
+            <FormAttrs onChange={attrs => setSelectedAttrs(attrs)} />
+          )}
         </DialogContent>
         <DialogActions>
           <Button
@@ -172,7 +188,7 @@ export default ({ product }) => {
           <Button
             onClick={() => {
               setBuyProductDialogState(false);
-              product.addToCart(selectedAttrs);
+              dispatch("ADD_TO_CART", selectedAttrs.choiceList);
             }}
             color="primary"
             variant="contained"
@@ -185,3 +201,10 @@ export default ({ product }) => {
     </div>
   );
 };
+
+export default connect(
+  store => ({ store }),
+  dispatch => ({
+    dispatch: (type, payload = null) => dispatch({ type, payload })
+  })
+)(BuyNow);
